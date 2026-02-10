@@ -1,0 +1,33 @@
+name: Deploy Application
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate-and-deploy-testing:
+    runs-on: ubuntu-latest
+    steps:
+      ...
+      - name: Run database migrations for testing
+        run: |
+          # Команды для миграции базы данных на тестовом окружении
+          flyway migrate -configFiles="flyway_conf/testing.conf"
+
+      - name: Build and deploy to testing
+        run: |
+          ./deploy.sh --env=testing
+
+  migrate-and-deploy-production:
+    runs-on: ubuntu-latest
+    needs: migrate-and-deploy-testing
+    steps:
+      ...
+
+      - name: Run database migrations for production
+        run: |
+          # Команды для миграции базы данных на продакшен-окружении
+          flyway migrate -configFiles="flyway_conf/production.conf"
+
+      - name: Build and deploy to production
+        run: |
+          ./deploy.sh --env=production
